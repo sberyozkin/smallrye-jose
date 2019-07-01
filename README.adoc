@@ -1,0 +1,30 @@
+:jose: https://datatracker.ietf.org/wg/jose/documents/
+:jose-name: Javascript Object Signing and Encryption
+
+image:https://semaphoreci.com/api/v1/smallrye/smallrye-jose/branches/master/badge.svg["Semaphore CI", link="https://semaphoreci.com/smallrye/smallrye-jose"]
+image:https://sonarcloud.io/api/project_badges/measure?project=smallrye_smallrye-jose&metric=alert_status["Quality Gate Status", link="https://sonarcloud.io/dashboard?id=smallrye_smallrye-jose"]
+image:https://img.shields.io/github/license/thorntail/thorntail.svg["License", link="http://www.apache.org/licenses/LICENSE-2.0"]
+
+= SmallRye JOSE
+
+SmallRye JOSE is a library for implementing the {jose}[{jose-name}] API.
+
+== Instructions
+
+Compile and install this project:
+
+[source,bash]
+----
+mvn clean install
+----
+
+=== Project structure
+
+* link:implementation[] - Implementation.
+* link:testsuite/basic - Test suite.
+* link:docs[] - Project documentation.
+
+=== Links
+
+* http://github.com/smallrye/smallrye-jose/[Project Homepage]
+

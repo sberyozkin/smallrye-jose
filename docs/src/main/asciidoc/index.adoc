@@ -1,0 +1,17 @@
+[[index]]
+= SmallRye JOSE Documentation
+:jose: https://datatracker.ietf.org/wg/jose/documents/
+:jose-name: Javascript Object Signing and Encryption
+:ext-relative: {outfilesuffix}
+:toc!:
+
+Welcome to the Documentation for SmallRye JOSE.
+
+SmallRye JOSE is a library for implementing the {jose}[{jose-name}] API.
+
+
+[[more-resources]]
+== More Resources
+
+* http://github.com/smallrye/smallrye-jose/[GitHub project repository]
+* https://datatracker.ietf.org/wg/jose/documents/[{jose-name}]
