@@ -47,11 +47,15 @@ public class DefaultJoseImpl implements Jose {
     private String JWK_KEYSTORE_INLINE = "inline";
 
     private JoseConfiguration config;
-    private Map<Class<?>, TypeConverter> typeConverters;
+    private Map<Class<?>, TypeConverter> readableTypeConverters;
+    private Map<Class<?>, TypeConverter> writeableTypeConverters;
 
     public DefaultJoseImpl(JoseConfiguration config,
-            Map<Class<?>, TypeConverter> typeConverters) {
+            Map<Class<?>, TypeConverter> readableTypeConverters,
+            Map<Class<?>, TypeConverter> writeableTypeConverters) {
         this.config = config;
+        this.readableTypeConverters = readableTypeConverters;
+        this.writeableTypeConverters = writeableTypeConverters;
     }
 
     @Override
@@ -284,7 +288,7 @@ public class DefaultJoseImpl implements Jose {
     }
 
     private String convertToString(Object data) {
-        TypeConverter tc = typeConverters.get(data.getClass());
+        TypeConverter tc = writeableTypeConverters.get(data.getClass());
         if (tc != null) {
             return tc.toString(data);
         } else {
@@ -293,7 +297,7 @@ public class DefaultJoseImpl implements Jose {
     }
 
     private <T> T convertToType(String data, Class<T> type) {
-        TypeConverter tc = typeConverters.get(type);
+        TypeConverter tc = readableTypeConverters.get(type);
         if (tc != null) {
             return tc.fromString(data, type);
         } else {

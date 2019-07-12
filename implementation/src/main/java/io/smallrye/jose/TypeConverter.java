@@ -16,6 +16,7 @@
  */
 package io.smallrye.jose;
 
+import java.util.Collections;
 import java.util.Set;
 
 /**
@@ -26,27 +27,44 @@ import java.util.Set;
 public interface TypeConverter {
 
     /**
-     * Return a set of the types supported by this type converter
+     * Return a set of the writeable types supported by this type converter
      * 
-     * @return a set of types
+     * @return a set of writeable types
      */
-    Set<Class<?>> getSupportedTypes();
+    default Set<Class<?>> getWriteableTypes() {
+        return Collections.emptySet();
+    }
 
     /**
-     * Convert a type to string
+     * Return a set of the readable types supported by this type converter
+     * 
+     * @return a set of readable types
+     */
+    default Set<Class<?>> getReadableTypes() {
+        return Collections.emptySet();
+    }
+
+    /**
+     * Convert a type to string.
+     * This method will be called only if the type of the object to be converted is writeable
      * 
      * @param typeInstance the type instance to be converted to string
      * @return the type string representation
      */
-    String toString(Object typeInstance);
+    default String toString(Object typeInstance) {
+        return null;
+    }
 
     /**
-     * Convert a string to type
+     * Convert a string to type.
+     * This method will be called only if the type of the object to be created from string is readable.
      * 
      * @param data the type string representation
      * @param type the expected type
      * @return the type instance
      */
-    <T> T fromString(String data, Class<T> type);
+    default <T> T fromString(String data, Class<T> type) {
+        return null;
+    }
 
 }

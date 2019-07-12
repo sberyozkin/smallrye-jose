@@ -37,17 +37,29 @@ public class JoseProvider {
     @Produces
     public Jose produceJose() {
         if (jose == null) {
-            jose = new DefaultJoseImpl(config, getTypeConverters());
+            // Discover all the type converters
+            Set<TypeConverter> typeConverters = Collections.singleton(new DefaultTypeConverter());
+            jose = new DefaultJoseImpl(config,
+                    getReadableTypeConverters(typeConverters),
+                    getWriteableTypeConverters(typeConverters));
         }
         return jose;
     }
 
-    private static Map<Class<?>, TypeConverter> getTypeConverters() {
-        // Discover all the type converters
-        Set<TypeConverter> typeConverters = Collections.singleton(new DefaultTypeConverter());
+    private static Map<Class<?>, TypeConverter> getReadableTypeConverters(Set<TypeConverter> typeConverters) {
         Map<Class<?>, TypeConverter> map = new HashMap<>();
         for (TypeConverter tc : typeConverters) {
-            for (Class<?> type : tc.getSupportedTypes()) {
+            for (Class<?> type : tc.getReadableTypes()) {
+                map.put(type, tc);
+            }
+        }
+        return map;
+    }
+
+    private static Map<Class<?>, TypeConverter> getWriteableTypeConverters(Set<TypeConverter> typeConverters) {
+        Map<Class<?>, TypeConverter> map = new HashMap<>();
+        for (TypeConverter tc : typeConverters) {
+            for (Class<?> type : tc.getWriteableTypes()) {
                 map.put(type, tc);
             }
         }

@@ -24,7 +24,12 @@ import io.smallrye.jose.TypeConverter;
 public class DefaultTypeConverter implements TypeConverter {
 
     @Override
-    public Set<Class<?>> getSupportedTypes() {
+    public Set<Class<?>> getWriteableTypes() {
+        return Collections.singleton(String.class);
+    }
+
+    @Override
+    public Set<Class<?>> getReadableTypes() {
         return Collections.singleton(String.class);
     }
 
