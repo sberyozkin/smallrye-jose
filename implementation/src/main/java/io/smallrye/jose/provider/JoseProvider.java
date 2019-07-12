@@ -16,11 +16,17 @@
  */
 package io.smallrye.jose.provider;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.inject.Produces;
 import javax.inject.Inject;
 
 import io.smallrye.jose.Jose;
+import io.smallrye.jose.TypeConverter;
 
 @ApplicationScoped
 public class JoseProvider {
@@ -31,9 +37,21 @@ public class JoseProvider {
     @Produces
     public Jose produceJose() {
         if (jose == null) {
-            jose = new DefaultJoseImpl(config);
+            jose = new DefaultJoseImpl(config, getTypeConverters());
         }
         return jose;
+    }
+
+    private static Map<Class<?>, TypeConverter> getTypeConverters() {
+        // Discover all the type converters
+        Set<TypeConverter> typeConverters = Collections.singleton(new DefaultTypeConverter());
+        Map<Class<?>, TypeConverter> map = new HashMap<>();
+        for (TypeConverter tc : typeConverters) {
+            for (Class<?> type : tc.getSupportedTypes()) {
+                map.put(type, tc);
+            }
+        }
+        return map;
     }
 
 }

@@ -14,29 +14,30 @@
  *   limitations under the License.
  *
  */
-package io.smallrye.jose.jwe;
+package io.smallrye.jose.provider;
 
 import java.util.Collections;
-import java.util.Map;
+import java.util.Set;
 
-public class EncryptionInput<T> {
-    private Map<String, Object> headers;
-    private T data;
+import io.smallrye.jose.TypeConverter;
 
-    public EncryptionInput(T data) {
-        this(data, Collections.emptyMap());
+public class DefaultTypeConverter implements TypeConverter {
+
+    @Override
+    public Set<Class<?>> getSupportedTypes() {
+        return Collections.singleton(String.class);
     }
 
-    public EncryptionInput(T data, Map<String, Object> headers) {
-        this.headers = headers;
-        this.data = data;
+    @Override
+    public String toString(Object typeInstance) {
+        return typeInstance.toString();
     }
 
-    public Map<String, Object> getHeaders() {
-        return headers;
+    @Override
+    public <T> T fromString(String data, Class<T> type) {
+        @SuppressWarnings("unchecked")
+        T typeInstance = (T) data;
+        return typeInstance;
     }
 
-    public T getData() {
-        return data;
-    }
 }

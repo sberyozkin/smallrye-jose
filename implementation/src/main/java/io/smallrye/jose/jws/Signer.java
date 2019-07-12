@@ -23,13 +23,16 @@ import io.smallrye.jose.JoseException;
  */
 public interface Signer {
     /**
-     * Sign the data in the JWS Compact format.
+     * Sign the custom type in the JWS Compact format.
      * 
-     * @param data the data to be signed
+     * @param typeInstance the type instance to be signed
      * @return the signed data in the JWS Compact format
      * @throws JoseException
+     * @see TypeConverter
      */
-    String sign(String data) throws JoseException;
+    default <T> String sign(T typeInstance) throws JoseException {
+        return sign(new SignatureInput<T>(typeInstance));
+    }
 
     /**
      * Sign the data in the JWS Compact format.
@@ -38,6 +41,6 @@ public interface Signer {
      * @return the signed data in the JWS Compact format
      * @throws JoseException
      */
-    String sign(SignatureInput input) throws JoseException;
+    <T> String sign(SignatureInput<T> input) throws JoseException;
 
 }

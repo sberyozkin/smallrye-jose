@@ -19,15 +19,15 @@ package io.smallrye.jose.jws;
 import java.util.Collections;
 import java.util.Map;
 
-public class VerificationOutput {
+public class VerificationOutput<T> {
     private Map<String, Object> headers;
-    private String data;
+    private T data;
 
-    public VerificationOutput(String data) {
-        this(Collections.emptyMap(), data);
+    public VerificationOutput(T data) {
+        this(data, Collections.emptyMap());
     }
 
-    public VerificationOutput(Map<String, Object> headers, String data) {
+    public VerificationOutput(T data, Map<String, Object> headers) {
         this.headers = headers;
         this.data = data;
     }
@@ -36,7 +36,7 @@ public class VerificationOutput {
         return headers;
     }
 
-    public String getData() {
+    public T getData() {
         return data;
     }
 }

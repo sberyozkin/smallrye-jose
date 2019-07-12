@@ -19,24 +19,24 @@ package io.smallrye.jose.jws;
 import java.util.Collections;
 import java.util.Map;
 
-public class SignatureInput {
+public class SignatureInput<T> {
     private Map<String, Object> headers;
-    private String data;
+    private T data;
 
-    public SignatureInput(String data) {
-        this(Collections.emptyMap(), data);
+    public SignatureInput(T data) {
+        this(data, Collections.emptyMap());
     }
 
-    public SignatureInput(Map<String, Object> headers, String data) {
-        this.headers = headers;
+    public SignatureInput(T data, Map<String, Object> headers) {
         this.data = data;
+        this.headers = headers;
     }
 
     public Map<String, Object> getHeaders() {
         return headers;
     }
 
-    public String getData() {
+    public T getData() {
         return data;
     }
 }

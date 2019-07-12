@@ -29,14 +29,40 @@ public interface Decryptor {
      * @return decrypted data
      * @throws JoseException
      */
-    String decrypt(String jwe) throws JoseException;
+    default String decrypt(String jwe) throws JoseException {
+        return decrypt(jwe, String.class);
+    }
 
     /**
-     * Decrypt the encrypted data in the JWE compact format.
+     * Decrypt the encrypted data in the JWE compact format and convert it to the custom type.
      * 
      * @param jwe the JWE sequence.
-     * @return decrypted data and verified metadata
+     * @param type the custom type the decrypted data will be converted to.
+     * @return decrypted data
      * @throws JoseException
      */
-    DecryptionOutput decryption(String jwe) throws JoseException;
+    default <T> T decrypt(String jwe, Class<T> type) throws JoseException {
+        return decryption(jwe, type).getData();
+    }
+
+    /**
+     * Decrypt the encrypted data in the JWE compact format and return with the metadata.
+     * 
+     * @param jwe the JWE sequence.
+     * @return decrypted string data and verified metadata
+     * @throws JoseException
+     */
+    default DecryptionOutput<String> decryption(String jwe) throws JoseException {
+        return decryption(jwe, String.class);
+    }
+
+    /**
+     * Decrypt the encrypted data in the JWE compact format, convert it to the custom type and return with the metadata.
+     * 
+     * @param jwe the JWE sequence.
+     * @param type the custom type the decrypted data will be converted to.
+     * @return decrypted typed data and verified metadata
+     * @throws JoseException
+     */
+    <T> DecryptionOutput<T> decryption(String jwe, Class<T> type) throws JoseException;
 }

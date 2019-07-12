@@ -19,15 +19,15 @@ package io.smallrye.jose.jwe;
 import java.util.Collections;
 import java.util.Map;
 
-public class DecryptionOutput {
+public class DecryptionOutput<T> {
     private Map<String, Object> headers;
-    private String data;
+    private T data;
 
-    public DecryptionOutput(String data) {
-        this(Collections.emptyMap(), data);
+    public DecryptionOutput(T data) {
+        this(data, Collections.emptyMap());
     }
 
-    public DecryptionOutput(Map<String, Object> headers, String data) {
+    public DecryptionOutput(T data, Map<String, Object> headers) {
         this.headers = headers;
         this.data = data;
     }
@@ -36,7 +36,7 @@ public class DecryptionOutput {
         return headers;
     }
 
-    public String getData() {
+    public T getData() {
         return data;
     }
 }

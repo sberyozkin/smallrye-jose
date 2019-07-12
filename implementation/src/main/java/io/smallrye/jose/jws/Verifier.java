@@ -29,34 +29,87 @@ public interface Verifier {
      * @return verified data
      * @throws JoseException
      */
-    String verify(String jws) throws JoseException;
+    default String verify(String jws) throws JoseException {
+        return verify(jws, String.class);
+    }
+
+    /**
+     * Verify the signed data in the JWS compact format and convert it to the custom type.
+     * 
+     * @param jws the JWS sequence.
+     * @param type the type the signed data will be converted to.
+     * @return verified typed data.
+     * @throws JoseException
+     */
+    default <T> T verify(String jws, Class<T> type) throws JoseException {
+        return verification(jws, type).getData();
+    }
 
     /**
      * Verify the signed data in the JWS compact format.
      * 
      * @param jws the JWS sequence.
-     * @return verified data and metadata
+     * @return verified string data and metadata
      * @throws JoseException
      */
-    VerificationOutput verification(String jws) throws JoseException;
+    default VerificationOutput<String> verification(String jws) throws JoseException {
+        return verification(jws, String.class);
+    }
 
     /**
-     * Verify the signed and detached data in the JWS compact format.
+     * Verify the signed data in the JWS compact format, convert it to the custom type and return with the metadata.
      * 
      * @param jws the JWS sequence.
-     * @param detachedData the signed and detached data.
+     * @return verified data converted to the custom type and metadata
+     * @throws JoseException
+     */
+    <T> VerificationOutput<T> verification(String jws, Class<T> type) throws JoseException;
+
+    /**
+     * Verify the detached signed data in the JWS compact format.
+     * 
+     * @param jws the JWS sequence.
+     * @param detachedData the detached signed data.
      * @return verified data
      * @throws JoseException
      */
-    String verifyDetached(String jws, String detachedData) throws JoseException;
+    default String verifyDetached(String jws, String detachedData) throws JoseException {
+        return verifyDetached(jws, detachedData, String.class);
+    }
 
     /**
-     * Verify the signed and detached data in the JWS compact format.
+     * Verify the detached signed data in the JWS compact format and convert it to the custom type.
      * 
      * @param jws the JWS sequence.
-     * @param detachedData the signed and detached data.
-     * @return verified data and metadata
+     * @param detachedData the detached signed data.
+     * @param type the type the signed detached data will be converted to.
+     * @return verified data
      * @throws JoseException
      */
-    VerificationOutput verificationDetached(String jws, String detachedData) throws JoseException;
+    default <T> T verifyDetached(String jws, String detachedData, Class<T> type) throws JoseException {
+        return verificationDetached(jws, detachedData, type).getData();
+    }
+
+    /**
+     * Verify the detached signed data in the JWS compact format.
+     * 
+     * @param jws the JWS sequence.
+     * @param detachedData the detached signed data.
+     * @return verified string data and metadata
+     * @throws JoseException
+     */
+    default VerificationOutput<String> verificationDetached(String jws, String detachedData) throws JoseException {
+        return verificationDetached(jws, detachedData, String.class);
+    }
+
+    /**
+     * Verify the detached signed data in the JWS compact format, convert it to the custom type and return with the metadata.
+     * 
+     * @param jws the JWS sequence.
+     * @param detachedData the detached signed data.
+     * @param type the type the signed detached data will be converted to.
+     * @return verified typed data and metadata
+     * @throws JoseException
+     */
+    <T> VerificationOutput<T> verificationDetached(String jws, String detachedData, Class<T> type) throws JoseException;
 }

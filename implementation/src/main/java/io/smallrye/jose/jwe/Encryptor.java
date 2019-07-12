@@ -23,20 +23,23 @@ import io.smallrye.jose.JoseException;
  */
 public interface Encryptor {
     /**
-     * Encrypt the data in the JWE compact format.
+     * Encrypt the custom type in the JWE compact format.
      * 
-     * @param data the data to be encrypted
+     * @param typeInstance the typeInstance to be encrypted
      * @return the encrypted data
      * @throws JoseException
+     * @see TypeConverter
      */
-    String encrypt(String data) throws JoseException;
+    default <T> String encrypt(T typeInstance) throws JoseException {
+        return encrypt(new EncryptionInput<T>(typeInstance));
+    }
 
     /**
-     * Encrypt the data in the JWE compact format.
+     * Encrypt the custom type in the JWE compact format.
      * 
-     * @param input the data and optional metadata which have to be encrypted and integrity-protected
+     * @param input the custom type to be encrypted and optional metadata to be integrity-protected
      * @return the encrypted data
      * @throws JoseException
      */
-    String encrypt(EncryptionInput input) throws JoseException;
+    <T> String encrypt(EncryptionInput<T> input) throws JoseException;
 }

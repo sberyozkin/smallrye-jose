@@ -37,6 +37,7 @@ import org.jose4j.jwx.HeaderParameterNames;
 import io.smallrye.jose.Jose;
 import io.smallrye.jose.JoseException;
 import io.smallrye.jose.JoseOperation;
+import io.smallrye.jose.TypeConverter;
 import io.smallrye.jose.jwe.DecryptionOutput;
 import io.smallrye.jose.jwe.EncryptionInput;
 import io.smallrye.jose.jws.SignatureInput;
@@ -46,20 +47,17 @@ public class DefaultJoseImpl implements Jose {
     private String JWK_KEYSTORE_INLINE = "inline";
 
     private JoseConfiguration config;
+    private Map<Class<?>, TypeConverter> typeConverters;
 
-    public DefaultJoseImpl(JoseConfiguration config) {
+    public DefaultJoseImpl(JoseConfiguration config,
+            Map<Class<?>, TypeConverter> typeConverters) {
         this.config = config;
     }
 
     @Override
-    public String sign(String data) {
-        return sign(new SignatureInput(data));
-    }
-
-    @Override
-    public String sign(SignatureInput input) {
+    public <T> String sign(SignatureInput<T> input) throws JoseException {
         JsonWebSignature jws = new JsonWebSignature();
-        jws.setPayload(input.getData());
+        jws.setPayload(convertToString(input.getData()));
         for (Map.Entry<String, Object> entry : input.getHeaders().entrySet()) {
             jws.getHeaders().setObjectHeaderValue(entry.getKey(), entry.getValue());
         }
@@ -82,26 +80,18 @@ public class DefaultJoseImpl implements Jose {
     }
 
     @Override
-    public String verify(String jws) throws JoseException {
-        return verification(jws).getData();
+    public <T> VerificationOutput<T> verification(String compactJws, Class<T> type) throws JoseException {
+        return getVerificationOutput(compactJws, null, type);
     }
 
     @Override
-    public VerificationOutput verification(String compactJws) throws JoseException {
-        return getVerificationOutput(compactJws, null);
+    public <T> VerificationOutput<T> verificationDetached(String compactJws, String detachedData, Class<T> type)
+            throws JoseException {
+        return getVerificationOutput(compactJws, detachedData, type);
     }
 
-    @Override
-    public String verifyDetached(String compactJws, String detachedData) throws JoseException {
-        return verificationDetached(compactJws, detachedData).getData();
-    }
-
-    @Override
-    public VerificationOutput verificationDetached(String compactJws, String detachedData) throws JoseException {
-        return getVerificationOutput(compactJws, detachedData);
-    }
-
-    public VerificationOutput getVerificationOutput(String compactJws, String detached) throws JoseException {
+    protected <T> VerificationOutput<T> getVerificationOutput(String compactJws, String detached, Class<T> type)
+            throws JoseException {
         JsonWebSignature jws = new JsonWebSignature();
         jws.setAlgorithmConstraints(new AlgorithmConstraints(ConstraintType.WHITELIST, config.getSignatureAlgorithm()));
         jws.setKey(getSignatureKey(jws, JoseOperation.VERIFICATION));
@@ -120,21 +110,18 @@ public class DefaultJoseImpl implements Jose {
         try {
             int firstDot = compactJws.indexOf(".");
             String headersJson = new Base64Url().base64UrlDecodeToUtf8String(compactJws.substring(0, firstDot));
-            return new VerificationOutput(JsonUtil.parseJson(headersJson), jws.getPayload());
+            VerificationOutput<T> vo = new VerificationOutput<T>(convertToType(jws.getPayload(), type),
+                    JsonUtil.parseJson(headersJson));
+            return vo;
         } catch (org.jose4j.lang.JoseException ex) {
             throw new JoseException(ex.getMessage(), ex);
         }
     }
 
     @Override
-    public String encrypt(String data) {
-        return encrypt(new EncryptionInput(data));
-    }
-
-    @Override
-    public String encrypt(EncryptionInput input) {
+    public <T> String encrypt(EncryptionInput<T> input) {
         JsonWebEncryption jwe = new JsonWebEncryption();
-        jwe.setPlaintext(input.getData());
+        jwe.setPlaintext(convertToString(input.getData()));
         for (Map.Entry<String, Object> entry : input.getHeaders().entrySet()) {
             jwe.getHeaders().setObjectHeaderValue(entry.getKey(), entry.getValue());
         }
@@ -152,12 +139,7 @@ public class DefaultJoseImpl implements Jose {
     }
 
     @Override
-    public String decrypt(String jwe) throws JoseException {
-        return decryption(jwe).getData();
-    }
-
-    @Override
-    public DecryptionOutput decryption(String compactJwe) throws JoseException {
+    public <T> DecryptionOutput<T> decryption(String compactJwe, Class<T> type) throws JoseException {
         JsonWebEncryption jwe = new JsonWebEncryption();
         try {
             jwe.setCompactSerialization(compactJwe);
@@ -171,7 +153,8 @@ public class DefaultJoseImpl implements Jose {
         try {
             int firstDot = compactJwe.indexOf(".");
             String headersJson = new Base64Url().base64UrlDecodeToUtf8String(compactJwe.substring(0, firstDot));
-            return new DecryptionOutput(JsonUtil.parseJson(headersJson), jwe.getPlaintextString());
+            return new DecryptionOutput<T>(convertToType(jwe.getPlaintextString(), type),
+                    JsonUtil.parseJson(headersJson));
         } catch (org.jose4j.lang.JoseException ex) {
             throw new JoseException(ex.getMessage(), ex);
         }
@@ -298,6 +281,24 @@ public class DefaultJoseImpl implements Jose {
             return config.getEncryptionKeyAlias();
         }
         return config.getEncryptionKeyAliasIn();
+    }
+
+    private String convertToString(Object data) {
+        TypeConverter tc = typeConverters.get(data.getClass());
+        if (tc != null) {
+            return tc.toString(data);
+        } else {
+            throw new JoseException("Unsupported type: " + data.getClass());
+        }
+    }
+
+    private <T> T convertToType(String data, Class<T> type) {
+        TypeConverter tc = typeConverters.get(type);
+        if (tc != null) {
+            return tc.fromString(data, type);
+        } else {
+            throw new JoseException("Unsupported type: " + data.getClass());
+        }
     }
 
 }
